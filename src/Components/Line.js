@@ -3,7 +3,11 @@ import { useDrop, useDrag } from 'react-dnd';
 import QuantumGate from './QuantumGate';
 
 const Line = ({ lineIndex, onDrop, onStateClick, gates }) => {
+
+  const [qubitState, setQubitState] = useState(0);
+
   const [isDraggingGate, setIsDraggingGate] = useState(false);
+
   const [{ isOver }, drop] = useDrop({
     accept: 'quantum-gate',
     drop: (item, monitor) => {
@@ -11,7 +15,7 @@ const Line = ({ lineIndex, onDrop, onStateClick, gates }) => {
       if (clientOffset) {
         const positionX = clientOffset.x;
         setIsDraggingGate(false);
-        onDrop(item, lineIndex, positionX);
+        handleDrop(item, positionX);
       }
     },
     collect: (monitor) => ({
@@ -28,10 +32,13 @@ const Line = ({ lineIndex, onDrop, onStateClick, gates }) => {
     end: () => setIsDraggingGate(false),
   });
 
-  const [qubitState, setQubitState] = useState(0);
+  const handleDrop = (item, positionX) => {
+    onDrop(item, lineIndex, positionX, qubitState);
+  };
+
 
   const handleStateClick = () => {
-    const newQubitState = 1 - qubitState;
+    const newQubitState = qubitState === '0' ? '1' : '0';
     setQubitState(newQubitState);
     onStateClick(lineIndex, newQubitState);
   };

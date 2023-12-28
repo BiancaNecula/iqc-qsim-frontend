@@ -4,8 +4,8 @@ import QuantumGate from './QuantumGate';
 import Line from './Line';
 import { v4 as uuidv4 } from 'uuid';
 
-const QuantumCircuitDisplay = ({ circuit, onDrop, onStateClick }) => {
-  const [lineGatePositions, setLineGatePositions] = useState([]);
+const QuantumCircuitDisplay = ({ circuit, onDrop }) => {
+  const [lineGatePositions, setLineGatePositions] = useState(Array.from({ length: 2 }, () => ({ qubitState: '0', gates: [] })));
 
   const simulateQuantum = async () => {
     try {
@@ -32,16 +32,12 @@ const QuantumCircuitDisplay = ({ circuit, onDrop, onStateClick }) => {
   const handleGateDrop = (item, lineIndex, positionX) => {
     const newLineGatePositions = [...lineGatePositions];
 
-    // Check if the line already has positions
-    if (!newLineGatePositions[lineIndex]) {
-      newLineGatePositions[lineIndex] = [];
-    }
+    const gateIndex = newLineGatePositions[lineIndex].gates.length || 0;
 
-    const gateIndex = newLineGatePositions[lineIndex]?.length || 0;
-    newLineGatePositions[lineIndex].push({
+    newLineGatePositions[lineIndex].gates.push({
       positionX,
       positionY: gateIndex * 40, // Adjust the Y position as needed
-      label: item.label, // Store the label of the gate
+      label: item.label,
     });
 
     setLineGatePositions(newLineGatePositions);
@@ -50,6 +46,28 @@ const QuantumCircuitDisplay = ({ circuit, onDrop, onStateClick }) => {
     console.log(response)
 
     console.log(lineGatePositions)
+  };
+
+  const onStateClick = (lineIndex, newQubitState) => {
+    console.log(`State clicked on line ${lineIndex} with new state ${newQubitState}`);
+    const newLineGatePositions = [...lineGatePositions];
+
+    if (!newLineGatePositions[lineIndex]) {
+      newLineGatePositions[lineIndex] = {
+        qubitState: newQubitState,
+        gates: [],
+      };
+    } else {
+      newLineGatePositions[lineIndex].qubitState = newQubitState;
+    }
+
+    setLineGatePositions(newLineGatePositions);
+
+    var response = simulateQuantum();
+    console.log(response)
+
+    console.log(lineGatePositions)
+  
   };
 
   return (
@@ -74,19 +92,23 @@ const QuantumCircuitDisplay = ({ circuit, onDrop, onStateClick }) => {
             lineIndex={0}
             onDrop={(item, positionX) => handleGateDrop(item, 0, positionX)}
             onStateClick={onStateClick}
-            gates={lineGatePositions[0] || []}
+            gates={gatesForLine(lineGatePositions, 0)}
           />
           <Line
             lineIndex={1}
             onDrop={(item, positionX) => handleGateDrop(item, 1, positionX)}
             onStateClick={onStateClick}
-            gates={lineGatePositions[1] || []}
+            gates={gatesForLine(lineGatePositions, 1)}
           />
           {/* Add more lines as needed */}
         </div>
       </div>
     </div>
   );
+};
+
+const gatesForLine = (lineGatePositions, lineIndex) => {
+  return lineGatePositions[lineIndex]?.gates || [];
 };
 
 export default QuantumCircuitDisplay;
