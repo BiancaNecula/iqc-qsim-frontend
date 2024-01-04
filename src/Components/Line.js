@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
 import QuantumGate from './QuantumGate';
 
-const Line = ({ lineIndex, onDrop, onStateClick, gates }) => {
+const Line = ({ lineIndex, onDrop, onStateClick, gates, displayRef, onAfterDrop, onDragEnd }) => {
 
   const [qubitState, setQubitState] = useState(0);
+
+  const [gatePositions, setGatePositions] = useState(gates);
 
   const [isDraggingGate, setIsDraggingGate] = useState(false);
 
@@ -13,15 +15,34 @@ const Line = ({ lineIndex, onDrop, onStateClick, gates }) => {
     drop: (item, monitor) => {
       const clientOffset = monitor.getClientOffset();
       if (clientOffset) {
+        // const displayRect = displayRef.current.getBoundingClientRect();
+
+        // console.log("Display Rect:", displayRect);
+      
+        // // Convert client offset to display element relative position
+        // const positionX = clientOffset.x - displayRect.left + window.scrollX;
+        // const positionY = clientOffset.y - displayRect.top + window.scrollY;
+
+        // console.log("Position X drop:", positionX);
+        // console.log("Position Y drop:", positionY);
+      
         const positionX = clientOffset.x;
+        const positionY = clientOffset.y;
         setIsDraggingGate(false);
-        handleDrop(item, positionX);
+        handleDrop(item, positionX, positionY);
       }
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
   });
+
+  // I want to pass this as the real positions of the gates
+  const handleGateDrag = (gate, label, gatePositionX, gatePositionY) => {
+    // Handle gate drag if needed
+    console.log(`Gate ${label} dragged to X: ${gatePositionX}, Y: ${gatePositionY}`);
+    onAfterDrop(gate, label, lineIndex, gatePositionX, gatePositionY);
+  }
 
   const [{ isDragging }, drag] = useDrag({
     type: 'quantum-gate',
@@ -36,9 +57,8 @@ const Line = ({ lineIndex, onDrop, onStateClick, gates }) => {
     onDrop(item, lineIndex, positionX, qubitState);
   };
 
-
   const handleStateClick = () => {
-    const newQubitState = qubitState === '0' ? '1' : '0';
+    const newQubitState = qubitState === 0 ? 1 : 0;
     setQubitState(newQubitState);
     onStateClick(lineIndex, newQubitState);
   };
@@ -57,31 +77,41 @@ const Line = ({ lineIndex, onDrop, onStateClick, gates }) => {
           border: '1px solid #007bff',
           borderRadius: '5px',
           cursor: 'pointer',
+          position: 'relative',  // Add position relative to establish stacking context
+          zIndex: 2,
         }}
         onClick={handleStateClick}
       >
         |{qubitState}⟩
       </button>
 
-      <div
-        ref={drop}
-        style={{
-          marginLeft: '10px',
-          width: isDraggingGate ? '50%' : '40px', // Adjust the width as needed
-          height: '2px',
-          backgroundColor: isOver ? 'red' : '#333',
-        }}
-      />
-
-      {gates.map((gate) => (
-        <QuantumGate
-          key={gate.id}
-          type="quantum-gate"
-          label={gate.label}
-          positionX={gate.positionX}
-          positionY={gate.positionY}
+      <div style={{marginLeft: '10px'}}> 
+        <div
+          ref={drop}
+          style={{
+            marginLeft: '10px', 
+            width: '600px',
+            height: '2px',
+            backgroundColor: isOver ? 'red' : '#333',
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 1,  // Set a lower z-index to position the line below the qubit state
+          }}
         />
-      ))}
+      </div>
+
+        {gates.map((gate) => (
+          <QuantumGate
+            key={gate.id}
+            type="quantum-gate"
+            label={gate.label}
+            positionX={gate.positionX}
+            positionY={gate.positionY}
+            onDrop={(label, gatePositionX, gatePositionY) => handleGateDrag(gate, label, gatePositionX, gatePositionY)}
+            onDragEnd={(item, label) => onDragEnd(item, label, gate.id)}
+          />
+        ))}
     </div>
   );
 };
