@@ -30,6 +30,7 @@ const Line = ({ lineIndex, onDrop, onStateClick, gates, displayRef, onAfterDrop,
         const positionY = clientOffset.y;
         setIsDraggingGate(false);
         handleDrop(item, positionX, positionY);
+        console.log("item", item);
       }
     },
     collect: (monitor) => ({
@@ -40,7 +41,7 @@ const Line = ({ lineIndex, onDrop, onStateClick, gates, displayRef, onAfterDrop,
   // I want to pass this as the real positions of the gates
   const handleGateDrag = (gate, label, gatePositionX, gatePositionY) => {
     // Handle gate drag if needed
-    console.log(`Gate ${label} dragged to X: ${gatePositionX}, Y: ${gatePositionY}`);
+    console.log(`Gate ${label} dragged to X: ${gatePositionX}, Y: ${gatePositionY}, matrix: ${gate.matrix}`);
     onAfterDrop(gate, label, lineIndex, gatePositionX, gatePositionY);
   }
 
@@ -110,6 +111,7 @@ const Line = ({ lineIndex, onDrop, onStateClick, gates, displayRef, onAfterDrop,
             positionY={gate.positionY}
             onDrop={(label, gatePositionX, gatePositionY) => handleGateDrag(gate, label, gatePositionX, gatePositionY)}
             onDragEnd={(item, label) => onDragEnd(item, label, gate.id)}
+            matrix={gate.matrix}
           />
         ))}
     </div>

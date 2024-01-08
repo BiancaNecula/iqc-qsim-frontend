@@ -1,12 +1,12 @@
 import React, { useRef, useEffect } from 'react';
 import { useDrag } from 'react-dnd';
 
-const QuantumGate = ({ type, label, positionX, positionY, onDrop, style, onDragEnd }) => {
+const QuantumGate = ({ type, label, matrix, positionX, positionY, onDrop, style, onDragEnd }) => {
   const gateRef = useRef(null);
 
   const [{ isDragging }, drag] = useDrag({
     type,
-    item: { label },
+    item: { label, matrix },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),

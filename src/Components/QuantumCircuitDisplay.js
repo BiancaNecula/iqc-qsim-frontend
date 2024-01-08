@@ -19,11 +19,11 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
     setDisplayElement(element);
   }, []);
 
-  useEffect(() => {
-    var response = simulateQuantum();
-    console.log(response);
-    console.log(lineGatePositions);
-  }, [lineGatePositions]);
+  // useEffect(() => {
+  //   var response = simulateQuantum();
+  //   console.log(response);
+  //   console.log(lineGatePositions);
+  // }, [lineGatePositions]);
   
   const simulateQuantum = async () => {
     try {
@@ -103,6 +103,7 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
         dropValue: position,
         positionX: newPositionX,
         label: item.label,
+        matrix: item.matrix
       }
     );
   
@@ -114,6 +115,11 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
     console.log(newLineGatePositions);
   
     setLineGatePositions(newLineGatePositions);
+
+    var response = simulateQuantum();
+    console.log(response);
+  
+    console.log(lineGatePositions);
   };
 
   const handleGateDragEnd = (item, label, id) => {
@@ -134,10 +140,10 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
     });
 
 
-    // var response = simulateQuantum();
-    // console.log(response);
+    var response = simulateQuantum();
+    console.log(response);
 
-    // console.log(lineGatePositions);
+    console.log(lineGatePositions);
 
   };
 
