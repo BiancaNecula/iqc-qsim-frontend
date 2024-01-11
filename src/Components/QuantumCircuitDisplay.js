@@ -3,6 +3,7 @@ import { useDrop, useDrag } from 'react-dnd';
 import QuantumGate from './QuantumGate';
 import Line from './Line';
 import { v4 as uuidv4 } from 'uuid';
+import ModalDialog from './Modal';
 
 const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
   const [lineGatePositions, setLineGatePositions] = useState(Array.from({ length: 2 }, () => ({ qubitState: 0, gates: [] })));
@@ -14,6 +15,11 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
   const [connectorLines, setConnectorLines] = useState([]);
 
   const [linePercentages, setLinePercentages] = useState({});
+
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [lastAddedGate, setLastAddedGate] = useState(null);
+
 
   useEffect(() => {
     const element = document.querySelector('.quantum-circuit-display');
@@ -38,18 +44,59 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
         body: JSON.stringify(data),
       });
   
-      if (!response.ok) { 
-        throw new Error(`Request failed with status: ${response.status}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessage = errorData.error|| 'An error occurred';
+        setErrorMessage(errorMessage);
+        setShowErrorPopup(true);
+
+        if (lastAddedGate) {
+          setLineGatePositions(prevPositions => {
+            const { id, lineIndex } = lastAddedGate;
+            const updatedPositions = prevPositions.map(line => {
+              const updatedGates = line.gates.filter(gate => {
+                return gate.id !== id;
+              });
+              return {
+                ...line,
+                gates: updatedGates,
+              };
+            });
+            return updatedPositions;
+          });
+        }
+
+        return;
       }
-  
+
       const result = await response.json();
       console.log(result);
 
       setLinePercentages(result.result);
 
-
     } catch (error) {
+
       console.error('Error:', error.message);
+      setErrorMessage('An error occurred');
+      setShowErrorPopup(true);
+
+      if (lastAddedGate) {
+        setLineGatePositions(prevPositions => {
+          const { id, lineIndex } = lastAddedGate;
+          const updatedPositions = prevPositions.map(line => {
+            const updatedGates = line.gates.filter(gate => {
+              return gate.id !== id;
+            });
+            return {
+              ...line,
+              gates: updatedGates,
+            };
+          });
+          return updatedPositions;
+        });
+      }
+
+      console.log(lineGatePositions);
     }
   };
 
@@ -98,21 +145,24 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
       (insertIndex !== -1 ? insertIndex * 40 : gates.length * 40);
 
     console.log("newPositionX" + newPositionX)
+
+    var newItem = {
+      id: uuidv4(),
+      lineIndex,
+      dropValue: position,
+      positionX: newPositionX,
+      label: item.label,
+      matrix: item.matrix,
+      series: item.series,
+    };
   
     // Insert the new gate at the drop position or at the end if no existing gate is found
     newLineGatePositions[lineIndex].gates.splice(
       insertIndex !== -1 ? insertIndex : gates.length,
       0,
-      {
-        id: uuidv4(),
-        lineIndex,
-        dropValue: position,
-        positionX: newPositionX,
-        label: item.label,
-        matrix: item.matrix, 
-        series: item.series,
-      }
+      newItem
     );
+
   
     // Update the positionX for the gates after the insertion point
     for (let i = insertIndex !== -1 ? insertIndex + 1 : gates.length; i < gates.length; i++) {
@@ -123,11 +173,20 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
   
     setLineGatePositions(newLineGatePositions);
 
-    var response = simulateQuantum();
-    console.log(response);
-  
-    console.log(lineGatePositions);
+    setLastAddedGate({
+      id: newItem.id, // Replace with the actual gate ID
+      lineIndex,
+    });
+    
   };
+
+  useEffect(() => {
+    if (lastAddedGate) {
+      var response = simulateQuantum();
+      console.log(response);
+      console.log(lineGatePositions);
+    }
+  }, [lastAddedGate]); 
 
   const [updateTrigger, setUpdateTrigger] = useState(false);
 
@@ -182,6 +241,17 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
     setLineGatePositions([...lineGatePositions, { qubitState: 0, gates: [] }]);
   };
 
+  const closeErrorPopup = () => {
+    setShowErrorPopup(false);
+  };
+
+  useEffect(() => {
+    if (!showErrorPopup && errorMessage) {
+      setErrorMessage(null);
+      simulateQuantum();
+    }
+  }, [showErrorPopup, errorMessage]);
+
   return (
     <div
       ref={ref}
@@ -198,9 +268,19 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
         marginBottom: '20px',
       }}
     >
+      {showErrorPopup && (
+      <ModalDialog
+        isOpen={showErrorPopup}
+        onRequestClose={closeErrorPopup}
+        title="Error"
+      >
+        <p>Error: {errorMessage}</p>
+      </ModalDialog>
+    )}
       <div style={{ display: 'flex', marginBottom: '10px' }}>
         <div>
           <h2>Qubit States</h2>
+          
           {lineGatePositions.map((line, index) => (
             <Line
               key={index}
