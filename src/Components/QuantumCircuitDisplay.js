@@ -13,6 +13,8 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
 
   const [connectorLines, setConnectorLines] = useState([]);
 
+  const [linePercentages, setLinePercentages] = useState({});
+
   useEffect(() => {
     const element = document.querySelector('.quantum-circuit-display');
     console.log("Display Element:", element);
@@ -42,6 +44,10 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
   
       const result = await response.json();
       console.log(result);
+
+      setLinePercentages(result.result);
+
+
     } catch (error) {
       console.error('Error:', error.message);
     }
@@ -103,7 +109,8 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
         dropValue: position,
         positionX: newPositionX,
         label: item.label,
-        matrix: item.matrix
+        matrix: item.matrix, 
+        series: item.series,
       }
     );
   
@@ -122,30 +129,32 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
     console.log(lineGatePositions);
   };
 
+  const [updateTrigger, setUpdateTrigger] = useState(false);
+
   const handleGateDragEnd = (item, label, id) => {
-    // Update the state to remove the gate
-    
-    setLineGatePositions(prevPositions => {
-      return prevPositions.map(line => {
-        if (line.lineIndex === item.lineIndex) {
-          console.log(line.gates);
-          console.log(item);
-          return {
-            ...line,
-            gates: line.gates.filter(gate => gate.id !== id),
-          };
-        }
-        return line;
+      setLineGatePositions(prevPositions => {
+        return prevPositions.map(line => {
+          if (line.lineIndex === item.lineIndex) {
+            return {
+              ...line,
+              gates: line.gates.filter(gate => gate.id !== id),
+            };
+          }
+          return line;
+        });
       });
-    });
 
-
-    var response = simulateQuantum();
-    console.log(response);
-
-    console.log(lineGatePositions);
-
+      // Set the update trigger
+      setUpdateTrigger(prev => !prev);
   };
+
+  useEffect(() => {
+      // This code will run after lineGatePositions has been updated
+      var response = simulateQuantum();
+      console.log(response);
+
+      console.log(lineGatePositions);
+  }, [updateTrigger]);
 
   const onStateClick = (lineIndex, newQubitState) => {
     console.log(`State clicked on line ${lineIndex} with new state ${newQubitState}`);
@@ -200,8 +209,11 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
               onStateClick={onStateClick}
               gates={line.gates || []}
               displayRef={ref}
-              onAfterDrop={(gate, label, lineIndex, gatePositionX, gatePositionY) => handleAfterDrop(gate, label, lineIndex, gatePositionX, gatePositionY)}
+              onAfterDrop={(gate, label, lineIndex, gatePositionX, gatePositionY) =>
+                handleAfterDrop(gate, label, lineIndex, gatePositionX, gatePositionY)
+              }
               onDragEnd={handleGateDragEnd}
+              percentages={linePercentages[index]} // Pass percentages for each line
             />
           ))}
         </div>

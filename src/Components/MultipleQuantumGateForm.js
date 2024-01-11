@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 
 const MultipleQuantumGateForm = ({ isOpen, onClose, onAddCustomGate }) => {
-  const [matrix, setCell] = useState('');
+  const [series, setCell] = useState('');
   const [label, setLabel] = useState('Custom Gate'); // Default label value
 
 
@@ -15,7 +15,7 @@ const MultipleQuantumGateForm = ({ isOpen, onClose, onAddCustomGate }) => {
   }
 
   const handleSubmit = () => {
-    onAddCustomGate(matrix, label);
+    onAddCustomGate(series, label);
     setCell(''); // Reset the cell
     setLabel('Custom Gate'); // Reset the label
     onClose();
@@ -39,7 +39,7 @@ const MultipleQuantumGateForm = ({ isOpen, onClose, onAddCustomGate }) => {
       <h2>Add Multiple Quantum Gate</h2>
       <label>Label:</label>
       <input type="text" value={label} onChange={handleLabelChange} />
-      <input type="text" value={matrix} onChange={handleCellChange} />
+      <input type="text" value={series} placeholder='X, Y, H, ...' onChange={handleCellChange} />
       <button onClick={handleSubmit}>Add Gate</button>
     </Modal>
   );

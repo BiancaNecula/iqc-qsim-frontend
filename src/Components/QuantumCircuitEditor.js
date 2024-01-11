@@ -41,14 +41,14 @@ const QuantumCircuitEditor = () => {
 
   };
 
-  const addCompositionGate = (matrix, label) => {
+  const addCompositionGate = (series, label) => {
     // Create a custom quantum gate object with the matrix
     const newCustomGate = {
       id: uuidv4(),
       label,
       positionX: 0, // Set the initial positionX as needed
       positionY: 0, // Set the initial positionY as needed
-      matrix, // The 2x2 matrix entered by the user
+      series, // The 2x2 matrix entered by the user
     };
 
     // Add the custom gate to the list of custom gates
@@ -107,6 +107,7 @@ const QuantumCircuitEditor = () => {
             onDrop={handleDrop}
             onDragEnd={handleDragEnd}
             matrix={customGate.matrix}
+            series={customGate.series}
           />
         ))}
         </div>
