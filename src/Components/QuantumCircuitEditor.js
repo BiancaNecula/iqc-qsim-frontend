@@ -1,13 +1,14 @@
 import React from 'react';
 import QuantumCircuitDisplay from './QuantumCircuitDisplay';
 import QuantumGate from './QuantumGate';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import CustomQuantumGateForm from './QuantumGateForm';
 import MultipleQuantumGateForm from './MultipleQuantumGateForm';
 
-const QuantumCircuitEditor = () => {
+const QuantumCircuitEditor = ({frontcircuit, ws}) => {
   const [quantumCircuit, setQuantumCircuit] = React.useState([]);
+  const [circuit, setFrontCircuit] = React.useState(frontcircuit);
   const [isCustomGateFormOpen, setCustomGateFormOpen] = useState(false);
   const [isCompositionGateFormOpen, setCompositionGateFormOpen] = useState(false);
   const [customGates, setCustomGates] = useState([]);
@@ -16,6 +17,10 @@ const QuantumCircuitEditor = () => {
     const newCircuit = [...quantumCircuit, { label: gate, lineIndex, positionX }];
     setQuantumCircuit(newCircuit);
   };
+
+  useEffect(() => {
+    setFrontCircuit(frontcircuit);
+  }, [frontcircuit]);
 
   const handleDragEnd = (gateId, lineIndex) => {
   };
@@ -64,7 +69,7 @@ const QuantumCircuitEditor = () => {
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: 'auto' }}>
       <h1 style={{ textAlign: 'center', color: '#333' }}>Quantum Circuit Editor</h1>
-      <QuantumCircuitDisplay circuit={quantumCircuit} ref={displayRef} onDrop={handleDrop} />
+      <QuantumCircuitDisplay circuit={quantumCircuit} frontcircuit={circuit} ref={displayRef} ws={ws} onDrop={handleDrop} />
   
       {/* Quantum Gates */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '50px' }}>

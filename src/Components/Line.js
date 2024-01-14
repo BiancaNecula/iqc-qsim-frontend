@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
 import QuantumGate from './QuantumGate';
 
-const Line = ({ lineIndex, onDrop, onStateClick, gates, displayRef, onAfterDrop, onDragEnd, percentages }) => {
+const Line = ({ lineIndex, onDrop, qubitStateRec, onStateClick, gates, displayRef, onAfterDrop, onDragEnd, percentages }) => {
 
   const [qubitState, setQubitState] = useState(0);
 
   const [gatePositions, setGatePositions] = useState(gates);
 
   const [isDraggingGate, setIsDraggingGate] = useState(false);
+
+  useEffect(() => {
+    setQubitState(qubitStateRec);
+  }, [qubitStateRec]);
 
   const [{ isOver }, drop] = useDrop({
     accept: 'quantum-gate',

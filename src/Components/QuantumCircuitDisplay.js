@@ -5,8 +5,11 @@ import Line from './Line';
 import { v4 as uuidv4 } from 'uuid';
 import ModalDialog from './Modal';
 
-const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
-  const [lineGatePositions, setLineGatePositions] = useState(Array.from({ length: 2 }, () => ({ qubitState: 0, gates: [] })));
+const defaultCircuitState = Array.from({ length: 2 }, () => ({ qubitState: 0, gates: [] }));
+
+const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop, ws }, ref) => {
+
+  const [lineGatePositions, setLineGatePositions] = useState(frontcircuit || defaultCircuitState);
 
   const [displayElement, setDisplayElement] = useState(null);
 
@@ -20,18 +23,25 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [lastAddedGate, setLastAddedGate] = useState(null);
 
-
   useEffect(() => {
     const element = document.querySelector('.quantum-circuit-display');
     console.log("Display Element:", element);
     setDisplayElement(element);
   }, []);
 
-  // useEffect(() => {
-  //   var response = simulateQuantum();
-  //   console.log(response);
-  //   console.log(lineGatePositions);
-  // }, [lineGatePositions]);
+  useEffect(() => {
+    if (lineGatePositions && ws) {
+      const message = JSON.stringify({ type: 'update_circuit', circuit: lineGatePositions });
+      ws.send(message);
+    }
+  }, [lineGatePositions, ws]);
+
+  useEffect(() => {
+    if (frontcircuit && JSON.stringify(frontcircuit) !== JSON.stringify(lineGatePositions)) {
+        setLineGatePositions(frontcircuit);
+    }
+  }, [frontcircuit]);
+
   
   const simulateQuantum = async () => {
     try {
@@ -110,7 +120,7 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
 
     newLineGatePositions[lineIndex].gates[gateIndex].realPositionX = gatePositionX;
 
-    setLineGatePositions(newLineGatePositions);
+    // setLineGatePositions(newLineGatePositions);
 
     // var response = simulateQuantum();
     // console.log(response);
@@ -286,6 +296,7 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, onDrop }, ref) => {
               key={index}
               lineIndex={index}
               onDrop={(item, index, positionX) => handleGateDrop(item, index, positionX)}
+              qubitStateRec={line.qubitState} 
               onStateClick={onStateClick}
               gates={line.gates || []}
               displayRef={ref}

@@ -23,7 +23,7 @@ const App = () => {
       window.location.href = `/`;
     }
   };
-  
+
 
   useEffect(() => {
     const roomId = window.location.pathname.split('/')[3];
@@ -64,17 +64,17 @@ const App = () => {
         if (message.leave_room) {
           setClients(message.leave_room);
         }
-        if (message.circuit) {
+        if (message.circuit && message.type === 'circuit_change') {
           setCircuit(message.circuit);
-          console.log("circuit: ",circuit);
         }
         
       };
-
       
 
     };
   }, []);
+
+  
 
   
 
@@ -89,7 +89,7 @@ const App = () => {
           ))}
         </ul></>)}
       <h1>Quantum Circuit Simulator App</h1>
-      <QuantumCircuitEditor />
+      <QuantumCircuitEditor frontcircuit={circuit} ws={ws} />
     </div>
   );
 };
