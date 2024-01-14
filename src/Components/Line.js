@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
 import QuantumGate from './QuantumGate';
 
-const Line = ({ lineIndex, onDrop, qubitStateRec, onStateClick, gates, displayRef, onAfterDrop, onDragEnd, percentages }) => {
+const Line = ({ lineIndex, onDrop, qubitStateRec, onStateClick, gates, displayRef, onAfterDrop, onDragEnd, percentages, simulationResult }) => {
 
   const [qubitState, setQubitState] = useState(0);
 
@@ -133,6 +133,24 @@ const Line = ({ lineIndex, onDrop, qubitStateRec, onStateClick, gates, displayRe
           }}
         >
           <span style={{ fontWeight: 'bold', marginLeft: '5px' }}>{`${percentages}`}</span>
+        </div>
+      )}
+
+      {simulationResult !== undefined && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            left: '650px', // Adjust as needed
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+          }}
+        >
+          <span style={{ fontWeight: 'bold', marginLeft: '5px' }}>
+            Result: {simulationResult}
+          </span>
         </div>
       )}
     </div>

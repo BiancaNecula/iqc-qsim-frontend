@@ -7,7 +7,7 @@ const CustomQuantumGateForm = ({ isOpen, onClose, onAddCustomGate }) => {
 
   const handleMatrixChange = (row, col, value) => {
     const newMatrix = [...matrix];
-    newMatrix[row][col] = parseFloat(value);
+    newMatrix[row][col] = value === '' ? 0 : parseFloat(value);
     setMatrix(newMatrix);
   };
 

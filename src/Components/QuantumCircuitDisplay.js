@@ -23,11 +23,19 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [lastAddedGate, setLastAddedGate] = useState(null);
 
+  const [simulationResults, setSimulationResults] = useState([]);
+
+  const [measurementBasis, setMeasurementBasis] = useState('X');
+
   useEffect(() => {
     const element = document.querySelector('.quantum-circuit-display');
     console.log("Display Element:", element);
     setDisplayElement(element);
   }, []);
+
+  const toggleMeasurementBasis = () => {
+    setMeasurementBasis(measurementBasis === 'X' ? 'Z' : 'X');
+  };
 
   useEffect(() => {
     if (lineGatePositions && ws) {
@@ -41,6 +49,30 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
         setLineGatePositions(frontcircuit);
     }
   }, [frontcircuit]);
+
+  const runSimulation = async () => {
+    try {
+      const data = { ...lineGatePositions, measure: true }; // Add 'measure' field
+      const response = await fetch('http://localhost:8000/quantum/api/simulate/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Simulation failed');
+      }
+  
+      const result = await response.json();
+      setSimulationResults(result); // Assuming the backend sends an array of numbers for each line
+    } catch (error) {
+      console.error('Error:', error);
+      setErrorMessage(error.message);
+      setShowErrorPopup(true);
+    }
+  };
 
   
   const simulateQuantum = async () => {
@@ -262,6 +294,41 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
     }
   }, [showErrorPopup, errorMessage]);
 
+  const exportCircuit = () => {
+    const dataStr = JSON.stringify(lineGatePositions);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+  
+    const link = document.createElement('a');
+    link.download = 'circuit.json';
+    link.href = url;
+    link.click();
+  
+    URL.revokeObjectURL(url);
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        const text = await file.text();
+        const circuitData = JSON.parse(text);
+        setLineGatePositions(circuitData);
+        simulateQuantum();
+      } catch (error) {
+        console.error('Error reading file:', error);
+        setErrorMessage('Failed to load circuit');
+        setShowErrorPopup(true);
+      }
+    }
+  };
+
+  const resetCircuit = () => {
+    setLineGatePositions(defaultCircuitState);
+  };
+  
+  
+
   return (
     <div
       ref={ref}
@@ -290,7 +357,25 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
       <div style={{ display: 'flex', marginBottom: '10px' }}>
         <div>
           <h2>Qubit States</h2>
-          
+
+          <button onClick={exportCircuit}>Export Circuit</button>
+
+          <input type="file" onChange={handleFileUpload} />
+
+          <button onClick={runSimulation}>Run</button>
+
+          <button onClick={resetCircuit}>Refresh</button>
+
+          <button 
+            onClick={toggleMeasurementBasis}
+            style={{
+              backgroundColor: measurementBasis === 'X' ? 'blue' : 'green',
+              color: 'white'
+            }}
+          >
+            {measurementBasis}
+          </button>
+                    
           {lineGatePositions.map((line, index) => (
             <Line
               key={index}
@@ -305,6 +390,7 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
               }
               onDragEnd={handleGateDragEnd}
               percentages={linePercentages[index]} // Pass percentages for each line
+              simulationResult={simulationResults[index]}
             />
           ))}
         </div>
