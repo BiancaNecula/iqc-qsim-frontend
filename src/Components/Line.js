@@ -95,7 +95,7 @@ const Line = ({ lineIndex, onDrop, qubitStateRec, onStateClick, gates, displayRe
           ref={drop}
           style={{
             marginLeft: '10px',
-            width: '600px',
+            width: '800px',
             height: '2px',
             backgroundColor: isOver ? 'red' : '#333',
             position: 'absolute',
@@ -126,7 +126,7 @@ const Line = ({ lineIndex, onDrop, qubitStateRec, onStateClick, gates, displayRe
             position: 'absolute',
             top: '50%',
             transform: 'translateY(-50%)',
-            left: '650px', // Adjust this value to place it after the line
+            left: '850px', // Adjust this value to place it after the line
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',
@@ -142,7 +142,7 @@ const Line = ({ lineIndex, onDrop, qubitStateRec, onStateClick, gates, displayRe
             position: 'absolute',
             top: '50%',
             transform: 'translateY(-50%)',
-            left: '650px', // Adjust as needed
+            left: '950px', // Adjust as needed
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',

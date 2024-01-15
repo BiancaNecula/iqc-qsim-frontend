@@ -1,0 +1,271 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  h1, h2 {
+    color: #333;
+  }
+  
+  /* App Component */
+  .app-container {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .client-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .client-list li {
+    margin-bottom: 10px;
+    position: relative; /* Required for positioning the pseudo-element */
+    padding-left: 20px; /* Provide space for the bullet */
+  }
+  
+  .client-list li::before {
+    content: ''; /* Required for a pseudo-element */
+    width: 10px;
+    height: 10px;
+    background-color: green;
+    border-radius: 50%; /* Makes it circular */
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%); /* Center vertically */
+  }
+  
+  /* QuantumCircuitEditor Component */
+  .editor-container {
+  padding: 20px;
+  }
+  
+  .editor-header {
+  text-align: center;
+  margin-bottom: 30px;
+  }
+  
+  .gate-button {
+  margin-bottom: 10px;
+  }
+  
+  .gate-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+  }
+  
+  /* QuantumCircuitDisplay Component */
+  .circuit-display {
+  background-color: #e9ecef;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  }
+  
+  .qubit-state-btn {
+  background-color: #6c757d;
+  color: white;
+  margin-right: 10px;
+  }
+  
+  .qubit-state-btn.active {
+  background-color: #28a745;
+  }
+  
+  /* Line Component */
+  .line-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  }
+  
+  .line {
+  flex-grow: 1;
+  height: 2px;
+  background-color: #333;
+  margin-left: 10px;
+  }
+  
+  /* QuantumGate Component */
+  .quantum-gate {
+  border: 1px solid #ccc;
+  padding: 0.2rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  background-color: #fff;
+  font-weight: bold;
+  }
+  
+  .quantum-gate:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  .quantum-circuit-editor {
+    font-family: 'Arial, sans-serif';
+    max-width: 1200px;
+    margin: auto;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow
+  
+  : 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .quantum-gates-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+  width: 70%;
+  }
+  
+  .gate-section {
+  margin-bottom: 20px;
+  }
+  
+  .gate-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  }
+  
+  .gate-button:hover {
+  background-color: #0056b3;
+  }
+  
+  .gate-group {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 50px;
+  }
+  
+  .quantum-gate {
+  margin-right: 50px;
+  /* Add additional styles for quantum gates here */
+  }
+  
+  /* Last gate in each group should not have right margin */
+  .quantum-gate:last-child {
+  margin-right: 0;
+  }
+
+  .quantum-circuit-display {
+    border: 2px dashed #ccc;
+    padding: 1rem;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background-color: #f6f6f6;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .control-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
+  .title {
+    margin: 0;
+  }
+  
+  .buttons-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .control-button {
+    margin-right: 10px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: auto;
+  }
+  
+  .control-button:hover {
+    opacity: 0.8;
+  }
+  
+  .file-input {
+    margin-right: 10px;
+    width: auto;
+  }
+  
+  .X {
+    background-color: blue;
+  }
+  
+  .Z {
+    background-color: green;
+  }
+  
+  .circuit-lines {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  }
+  
+  .add-line-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  }
+  
+  .add-line-button:hover {
+  background-color: #0056b3;
+  }
+
+  .editor-flex-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .button-panel {
+    /* Adjust width as needed */
+    width: 30%;
+  }

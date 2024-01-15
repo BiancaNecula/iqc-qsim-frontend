@@ -23,6 +23,10 @@ const CustomQuantumGateForm = ({ isOpen, onClose, onAddCustomGate }) => {
   };
 
   const modalStyles = {
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent overlay
+      zIndex: 1000,
+    },
     content: {
       top: '50%',
       left: '50%',
@@ -30,8 +34,13 @@ const CustomQuantumGateForm = ({ isOpen, onClose, onAddCustomGate }) => {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      width: '60%', // Adjust the width as needed
+      width: '80%', // Adjust the width as needed
       maxWidth: '400px', // Set a maximum width for the modal
+      background: '#fff', // White background
+      border: '1px solid #ccc', // Gray border
+      borderRadius: '8px', // Rounded corners
+      boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)', // Shadow
+      padding: '20px',
     },
   };
 

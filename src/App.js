@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import QuantumCircuitEditor from './Components/QuantumCircuitEditor';
 import { v4 as uuidv4 } from 'uuid';
+import './Style/style.css'
 
 const App = () => {
   const [ws, setWs] = useState(null);
@@ -79,16 +80,20 @@ const App = () => {
   
 
   return (
-    <div>
-      {!ws && <button onClick={createRoom}>Create Room</button>}
-      {ws && <button onClick={leaveRoom}>Leave Room</button>}
+    <div className="app-container">
+      {!ws && <button className="button" onClick={createRoom}>Create Room</button>}
+      {ws && <button className="button" onClick={leaveRoom}>Leave Room</button>}
       {ws && clients.length > 0 && (
-      <><h2>Clients in the room:</h2><ul>
-          {clients.map((client, index) => (
-            <li key={index}>{client}</li>
-          ))}
-        </ul></>)}
-      <h1>Quantum Circuit Simulator App</h1>
+        <div className="client-list-container">
+          <ul className="client-list">
+            {clients.map((client, index) => (
+              <li key={index} className="client-item">
+                <span className="client-status"></span> {client}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <QuantumCircuitEditor frontcircuit={circuit} ws={ws} />
     </div>
   );

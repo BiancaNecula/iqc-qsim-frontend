@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
 import QuantumGate from './QuantumGate';
 import Line from './Line';
 import { v4 as uuidv4 } from 'uuid';
 import ModalDialog from './Modal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSyncAlt, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+
 
 const defaultCircuitState = Array.from({ length: 2 }, () => ({ qubitState: 0, gates: [] }));
 
@@ -25,7 +28,13 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
 
   const [simulationResults, setSimulationResults] = useState([]);
 
-  const [measurementBasis, setMeasurementBasis] = useState('X');
+  const [measurementBasis, setMeasurementBasis] = useState('Z');
+
+  const [resetCircuit, setResetCircuit] = useState(false);
+
+  const [psi, setPsi] = useState("");
+
+  const psiInputRef = useRef(null);
 
   useEffect(() => {
     const element = document.querySelector('.quantum-circuit-display');
@@ -36,6 +45,13 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
   const toggleMeasurementBasis = () => {
     setMeasurementBasis(measurementBasis === 'X' ? 'Z' : 'X');
   };
+
+  useEffect(() => {
+    var response = simulateQuantum();
+    console.log(response);
+    console.log(lineGatePositions);
+  }
+  , [measurementBasis]);
 
   useEffect(() => {
     if (lineGatePositions && ws) {
@@ -52,7 +68,8 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
 
   const runSimulation = async () => {
     try {
-      const data = { ...lineGatePositions, measure: true }; // Add 'measure' field
+      const data = { ...lineGatePositions, measure: true, measurement_basis: measurementBasis }; // Add 'measure' field
+      console.log("data: ", JSON.stringify(data));
       const response = await fetch('http://localhost:8000/quantum/api/simulate/', {
         method: 'POST',
         headers: {
@@ -66,7 +83,9 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
       }
   
       const result = await response.json();
-      setSimulationResults(result); // Assuming the backend sends an array of numbers for each line
+      setSimulationResults(result.measurements); 
+      setPsi(result.psi);
+
     } catch (error) {
       console.error('Error:', error);
       setErrorMessage(error.message);
@@ -77,7 +96,8 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
   
   const simulateQuantum = async () => {
     try {
-      const data = lineGatePositions;
+      const data = { ...lineGatePositions, measurement_basis: measurementBasis};
+      console.log("data: ", JSON.stringify(data));
       const response = await fetch('http://localhost:8000/quantum/api/simulate/', {
         method: 'POST',
         headers: {
@@ -114,7 +134,8 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
       const result = await response.json();
       console.log(result);
 
-      setLinePercentages(result.result);
+      setLinePercentages(result.probabilities);
+      setPsi(result.psi);
 
     } catch (error) {
 
@@ -323,59 +344,60 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
     }
   };
 
-  const resetCircuit = () => {
-    setLineGatePositions(defaultCircuitState);
+  const resetCircuitHandler = () => {
+    setResetCircuit(true);
   };
-  
+
+  useEffect(() => {
+    if (resetCircuit) {
+      setResetCircuit(false);
+      setLineGatePositions(defaultCircuitState);
+      setSimulationResults([]);
+      setLinePercentages({});
+      console.log(lineGatePositions);
+    }
+  }, [resetCircuit]);
+
+
+  useEffect(() => {
+    console.log("Updated lineGatePositions:", lineGatePositions);
+    simulateQuantum();
+  }, [lineGatePositions]);
+
+  const copyPsiToClipboard = () => {
+    navigator.clipboard.writeText(psi);
+  };
+
+  const psiWidthRef = useRef(null);
+
+  useEffect(() => {
+    if (psiInputRef.current && psiWidthRef.current) {
+      const width = psiWidthRef.current.offsetWidth;
+      psiInputRef.current.style.width = `${width}px`;
+    }
+  }, [psi]);
   
 
   return (
-    <div
-      ref={ref}
-      className="quantum-circuit-display"
-      style={{
-        border: '2px dashed #ccc',
-        padding: '1rem',
-        minHeight: '300px',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: '#f6f6f6',
-        borderRadius: '5px',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        marginBottom: '20px',
-      }}
-    >
+    <div ref={ref} className="quantum-circuit-display">
       {showErrorPopup && (
-      <ModalDialog
-        isOpen={showErrorPopup}
-        onRequestClose={closeErrorPopup}
-        title="Error"
-      >
+      <ModalDialog isOpen={showErrorPopup} onRequestClose={closeErrorPopup} title="Error">
         <p>Error: {errorMessage}</p>
       </ModalDialog>
     )}
-      <div style={{ display: 'flex', marginBottom: '10px' }}>
-        <div>
-          <h2>Qubit States</h2>
-
-          <button onClick={exportCircuit}>Export Circuit</button>
-
-          <input type="file" onChange={handleFileUpload} />
-
-          <button onClick={runSimulation}>Run</button>
-
-          <button onClick={resetCircuit}>Refresh</button>
-
-          <button 
-            onClick={toggleMeasurementBasis}
-            style={{
-              backgroundColor: measurementBasis === 'X' ? 'blue' : 'green',
-              color: 'white'
-            }}
-          >
-            {measurementBasis}
-          </button>
-                    
+      <div className="control-panel">
+      <h2 className="title">Quantum Circuit Simulator</h2>
+      <div className="buttons-container">
+        <button className="control-button" onClick={exportCircuit}>Export Circuit</button>
+        <input type="file" className="file-input" onChange={handleFileUpload} />
+        <button className="control-button" onClick={runSimulation}>Run <FontAwesomeIcon icon={faArrowRight} /></button>
+        <button className="control-button" onClick={resetCircuitHandler}><FontAwesomeIcon icon={faSyncAlt} /></button>
+        <button className={`control-button ${measurementBasis}`} onClick={toggleMeasurementBasis}>
+          Measuring in {measurementBasis}
+        </button>
+      </div>
+      </div>
+      <div className="circuit-lines">
           {lineGatePositions.map((line, index) => (
             <Line
               key={index}
@@ -393,9 +415,20 @@ const QuantumCircuitDisplay = React.forwardRef(({ circuit, frontcircuit, onDrop,
               simulationResult={simulationResults[index]}
             />
           ))}
-        </div>
-      </div>
+          </div>
       <button onClick={addLine}>Add Line</button>
+
+      {/* Editable and copyable textbox for "psi" */}
+      <div className="psi-container">
+        <label>psi:</label>
+        <input
+          type="text"
+          ref={psiInputRef}
+          value={psi}
+          placeholder="Edit 'psi'"
+          className="psi-input"
+        />
+      </div>
     </div>
   );
 });
