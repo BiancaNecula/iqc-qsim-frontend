@@ -81,6 +81,29 @@ const App = () => {
 
   return (
     <div className="app-container">
+      <div className="header-container">
+
+        <div className="left-content">
+          <div className="left-text">
+            <div style={{ fontFamily: 'Oswald, sans-serif', fontWeight: 600, fontSize: '24px' }}>Quantum Capybaras</div>
+            <div style={{ fontFamily: 'Oswald, sans-serif', fontWeight: 300 }}>January 2024</div>
+          </div>
+        </div>
+
+        <div className="right-content">
+          <a href="https://quantum.upb.ro/index.html" target="_blank" rel="noopener noreferrer">
+            <i className="fas fa-external-link-alt"></i> Quantum @ CS, UPB
+          </a>
+          <div className="header-sigle">
+            <img src="https://quantum.upb.ro/MScQCLogo.png" alt="Msc Quantum @ CS, UPB" />
+            <img src="https://quantum.upb.ro/Acs.png" alt="Acs logo" />
+            <img src="https://quantum.upb.ro/upb.png" alt="Upb logo" />
+            <img src="https://quantum.upb.ro/cse.png" alt="Logo IQC" />
+          </div>
+        </div>
+        
+      </div>
+
       {!ws && <button className="button" onClick={createRoom}>Create Room</button>}
       {ws && <button className="button" onClick={leaveRoom}>Leave Room</button>}
       {ws && clients.length > 0 && (
